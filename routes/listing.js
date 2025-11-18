@@ -45,24 +45,50 @@ router.post("/",validateListing,wrapAsync(async(req,res,next)=>{
 //Edit Route
 router.get("/:id/edit",wrapAsync(async(req,res)=>{
     let {id}=req.params;
-    const listing=await Listing.findById(id);   
+    const listing=await Listing.findById(id);
     res.render("listings/edit.ejs",{listing});
 }));
 
 //Update Route
-router.put("/:id",validateListing,wrapAsync(async(req,res)=>{
-    let {id}=req.params;
-    await Listing.findByIdAndUpdate(id,{...req.body.listing});
-    req.flash(("success","Listing Updated!"));
+// router.put("/:id",validateListing,wrapAsync(async(req,res)=>{
+//     let {id}=req.params;
+//     await Listing.findByIdAndUpdate(id,{...req.body.listing});
+//     req.flash("success","Listing Updated");
+//     res.redirect(`/listings/${id}`);
+// }));
+router.put("/:id", wrapAsync(async (req, res) => {
+    let { id } = req.params;
+
+    const listing = await Listing.findById(id);
+
+    // Normal field updates
+    listing.title = req.body.listing.title;
+    listing.description = req.body.listing.description;
+    listing.price = req.body.listing.price;
+    listing.country = req.body.listing.country;
+    listing.location = req.body.listing.location;
+
+    // IMAGE UPDATE LOGIC
+    if (req.body.listing.image && req.body.listing.image.trim() !== "") {
+        listing.image = {
+            filename: "listingimage",
+            url: req.body.listing.image
+        };
+    }
+
+    await listing.save();
+
+    req.flash("success", "Listing Updated!");
     res.redirect(`/listings/${id}`);
 }));
+
 
 //Delete route
 router.delete("/:id",wrapAsync(async(req,res)=>{
     let {id}=req.params;
     let deletedListing=await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
-    req.flash(("success","Listing deleted!"));
+    req.flash("success","Listing deleted!");
     res.redirect("/listings");
 }));
 module.exports=router;

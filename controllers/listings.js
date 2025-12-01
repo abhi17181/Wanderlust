@@ -12,6 +12,25 @@ module.exports.renderNewForm=(req,res)=>{
     res.render("listings/new.ejs");
 };
 
+module.exports.SearchListing=async (req, res) => {
+    const { q } = req.query;
+
+    if (!q) {
+        return res.redirect("/listings");
+    }
+
+    const listings = await Listing.find({
+    $or: [
+        { title: { $regex: q, $options: "i" } },
+        { country: { $regex: q, $options: "i" } },
+        { location: { $regex: q, $options: "i" } } // optional if you want to include location
+    ]
+});
+
+
+    res.render("listings/searchResults.ejs", { listings, q });
+};
+
 module.exports.showListing=async(req,res)=>{
     let {id}=req.params;
     const listing=await Listing.findById(id)

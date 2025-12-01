@@ -21,7 +21,6 @@ const listingRouter=require("./routes/listing.js");
 const reviewRouter=require("./routes/reviews.js");
 const userRouter=require("./routes/user.js");
 
-// const dbUrl="mongodb://127.0.0.1:27017/wanderlust";
 const dbUrl=process.env.ATLASDB_URL;
 
 main().then(()=>{
@@ -31,7 +30,6 @@ main().then(()=>{
 });
 async function main(){
     await mongoose.connect(dbUrl);
-    //await mongoose.connect(mongo_url);
 }
 
 app.set("view engine","ejs");
@@ -41,15 +39,12 @@ app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
-// const store=MongoStore.create({
-//     mongoUrl: dbUrl,
-//     crypto:{
-//         secret:"mysupersecretcode"
-//     },
-//     touchAfter:24 * 3600,
-// });
+
 const store = MongoStore.create({
     mongoUrl: dbUrl,
+    // crypto:{
+    //     secret:process.env.SECRET,
+    // },
     touchAfter: 24 * 3600,
 });
 
@@ -59,7 +54,7 @@ store.on("error",(err)=>{
 
 const sessionOptions = {
     store,
-    secret: "mysupersecretcode",
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -82,7 +77,6 @@ app.use((req,res,next)=>{
     res.locals.success=req.flash("success");
     res.locals.error=req.flash("error");
     res.locals.currUser=req.user;
-    // console.log(res.locals.success);
     next();
 });
 app.use("/listings",listingRouter);
@@ -95,7 +89,6 @@ app.use("/",(req,res,next)=>{
 app.use((err,req,res,next)=>{
     let {statusCode=500,message="Something went wrong!"}=err;
     res.status(statusCode).render("error.ejs",{message});
-    //res.status(statusCode).send(message);
 });
 app.listen(8080,()=>{
     console.log("Server is listening to port 8080");

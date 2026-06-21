@@ -18,7 +18,7 @@ A full-stack Airbnb-inspired web application that allows users to browse, filter
 ## 🛠️ Tech Stack
 
 ### Frontend:
-- **React.js**
+- **EJS**
 - **Tailwind CSS** / **Styled Components**  
 - **Axios** for API calls
 
